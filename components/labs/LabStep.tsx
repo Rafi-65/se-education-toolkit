@@ -17,6 +17,34 @@ interface LabStepProps {
   personaIntro?: string;
 }
 
+const formatCaseStudyContext = (
+  caseStudy: {
+    problem: Problem;
+    userStory: UserStoryExample | null;
+    acceptanceCriteria: AcceptanceCriteria[];
+  },
+  showUserStory: boolean,
+  showAC: boolean,
+  userStoryLabel: string,
+  acLabel: string
+): string => {
+  const { problem, userStory, acceptanceCriteria } = caseStudy;
+  const lines = [
+    `Problem Statement: ${problem.statement}`,
+    ...(problem.description ? [`Description: ${problem.description}`] : []),
+    ...(problem.context ? [`Context: ${problem.context}`] : []),
+    ...(problem.note ? [`Note: ${problem.note}`] : []),
+    ...(problem.personas && problem.personas.length > 0
+      ? [`Personas:\n${problem.personas.map((p, i) => `${i + 1}. ${p.name} (${p.role}): ${p.description}`).join("\n")}`]
+      : []),
+    ...(userStory && showUserStory ? [`Selected ${userStoryLabel}: ${userStory.statement}`] : []),
+    ...(acceptanceCriteria && acceptanceCriteria.length > 0 && showAC
+      ? [`Selected ${acLabel}:\n${acceptanceCriteria.map((ac, i) => `${i + 1}. ${ac.criteria}`).join("\n")}`]
+      : []),
+  ];
+  return lines.join("\n\n");
+};
+
 const LabStep: React.FC<LabStepProps> = ({
   step,
   copyToClipboard,
@@ -46,9 +74,32 @@ const LabStep: React.FC<LabStepProps> = ({
   };
 
   const getPrompt = () => {
-    return step.prompt
-      ?.replace("{{PERSONA_INTRO}}", personaIntro ?? "")
-      ?.replace("{{CASE_STUDY_DATA}}", "") ?? null;
+    if (!step.prompt) return null;
+    
+    let processedPrompt = step.prompt.replace("{{PERSONA_INTRO}}", personaIntro ?? "");
+    
+    if (processedPrompt.includes("{{CASE_STUDY_DATA}}")) {
+      if (caseStudy) {
+        const formattedContext = formatCaseStudyContext(
+          caseStudy,
+          showUserStory,
+          showAC,
+          userStoryLabel,
+          acLabel
+        );
+        processedPrompt = processedPrompt.replace(
+          "{{CASE_STUDY_DATA}}", 
+          `\n\n--- SELECTED CONTEXT ---\n${formattedContext}\n-------------------------\n`
+        );
+      } else {
+        processedPrompt = processedPrompt.replace(
+          "{{CASE_STUDY_DATA}}",
+          `\n\n[Note: Case study context is not yet selected. Select a problem and/or user story above to automatically populate this prompt with context, or copy and paste it later.]\n`
+        );
+      }
+    }
+    
+    return processedPrompt;
   };
 
   const prompt = getPrompt();
@@ -114,9 +165,21 @@ const LabStep: React.FC<LabStepProps> = ({
       {prompt && (
         <div className="mb-3 sm:mb-4">
           <div className="flex justify-between items-center mb-1 sm:mb-2">
-            <h4 className="font-medium text-gray-700 text-sm sm:text-base">
-              {isSecondStep && caseStudy ? `${userStoryLabel} Teacher Prompt` : "Prompt"}
-            </h4>
+            <div className="flex items-center gap-2">
+              <h4 className="font-medium text-gray-700 text-sm sm:text-base">
+                {isSecondStep && caseStudy ? `${userStoryLabel} Teacher Prompt` : "Prompt"}
+              </h4>
+              {!isSecondStep && caseStudy && (
+                <span className="bg-green-100 text-green-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                  <Check size={10} /> Context Loaded
+                </span>
+              )}
+              {!isSecondStep && !caseStudy && step.prompt?.includes("{{CASE_STUDY_DATA}}") && (
+                <span className="bg-amber-100 text-amber-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  Waiting for Context
+                </span>
+              )}
+            </div>
             <button
               onClick={() => handleCopy(prompt)}
               className="flex items-center gap-1 text-xs sm:text-sm transition-colors text-blue-500 hover:text-blue-600"
@@ -160,21 +223,14 @@ const LabStep: React.FC<LabStepProps> = ({
             <h4 className="font-medium text-gray-700 text-sm sm:text-base">Selected Context</h4>
             <button
               onClick={() => {
-                const { problem, userStory, acceptanceCriteria } = caseStudy;
-                const lines = [
-                  `Problem Statement: ${problem.statement}`,
-                  ...(problem.description ? [`Description: ${problem.description}`] : []),
-                  ...(problem.context ? [`Context: ${problem.context}`] : []),
-                  ...(problem.note ? [`Note: ${problem.note}`] : []),
-                  ...(problem.personas.length > 0
-                    ? [`Personas:\n${problem.personas.map((p, i) => `${i + 1}. ${p.name} (${p.role}): ${p.description}`).join("\n")}`]
-                    : []),
-                  ...(userStory && showUserStory ? [`Selected ${userStoryLabel}: ${userStory.statement}`] : []),
-                  ...(acceptanceCriteria.length > 0 && showAC
-                    ? [`Selected ${acLabel}:\n${acceptanceCriteria.map((ac, i) => `${i + 1}. ${ac.criteria}`).join("\n")}`]
-                    : []),
-                ];
-                handleCopySummary(lines.join("\n\n"));
+                const formattedContext = formatCaseStudyContext(
+                  caseStudy,
+                  showUserStory,
+                  showAC,
+                  userStoryLabel,
+                  acLabel
+                );
+                handleCopySummary(formattedContext);
               }}
               className="flex items-center gap-1 text-xs sm:text-sm transition-colors text-blue-500 hover:text-blue-600"
             >

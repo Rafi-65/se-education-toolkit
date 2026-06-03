@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
- eslint: {
+  eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { motion, useInView } from "framer-motion";
 import { Filter, Download, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +21,7 @@ const findMatchingOption = (options: string[], urlValue: string): string => {
   );
 };
 
-const LabsPage = () => {
+const LabsPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ref = useRef(null);
@@ -309,7 +309,7 @@ const LabsPage = () => {
                   step={step}
                   index={i}
                   copyToClipboard={copyToClipboard}
-                  caseStudy={step.type === "interaction" ? selectedHierarchicalData : null}
+                  caseStudy={selectedHierarchicalData}
                   isSecondStep={step.type === "interaction"}
                   hierarchy={topicHierarchy}
                   personaIntro={personaIntro}
@@ -320,6 +320,22 @@ const LabsPage = () => {
         )}
       </div>
     </main>
+  );
+};
+
+const LabsPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <h3 className="text-lg font-semibold text-gray-700">Loading AI Labs...</h3>
+          <p className="text-sm text-gray-500">Preparing interactive software engineering scenarios</p>
+        </div>
+      </div>
+    }>
+      <LabsPageContent />
+    </Suspense>
   );
 };
 

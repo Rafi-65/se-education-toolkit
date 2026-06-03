@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tailwindcss/oxide-darwin-arm64": "^4.3.0",
     "clsx": "^2.1.1",
+    "lightningcss-darwin-arm64": "^1.32.0",
     "lucide-react": "^0.488.0",
     "motion": "^12.7.2",
-    "next": "15.3.6",
+    "next": "^16.2.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.2.0"
@@ -20,11 +22,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@typescript-eslint/eslint-plugin": "^8.30.0",
-    "@typescript-eslint/parser": "^8.30.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.30.0",
+    "@typescript-eslint/parser": "^8.30.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
     "tailwindcss": "^4",

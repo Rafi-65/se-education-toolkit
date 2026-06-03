@@ -47,24 +47,24 @@ const Navbar = () => {
         <nav className="hidden md:block">
           <ul className="flex space-x-6 text-white font-medium">
             <li>
-              <a href="#features" className="hover:underline">
+              <Link href="/#features" className="hover:underline">
                 Features
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#personas" className="hover:underline">
+              <Link href="/#personas" className="hover:underline">
                 Personas
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/labs" className="hover:underline">
+              <Link href="/labs" className="hover:underline">
                 Labs
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#assessments" className="hover:underline">
+              <Link href="/#assessments" className="hover:underline">
                 Assessment
-              </a>
+              </Link>
             </li>
             <li>
               <Link href="/about" className="hover:underline">
@@ -86,40 +86,40 @@ const Navbar = () => {
         <div className="md:hidden bg-blue-700 w-full absolute left-0 top-full border-t border-blue-600 shadow-lg">
           <ul className="flex flex-col text-white font-medium py-2">
             <li>
-              <a
-                href="#features"
+              <Link
+                href="/#features"
                 className="block px-6 py-3 hover:bg-blue-600"
                 onClick={toggleMenu}
               >
                 Features
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#personas"
+              <Link
+                href="/#personas"
                 className="block px-6 py-3 hover:bg-blue-600"
                 onClick={toggleMenu}
               >
                 Personas
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/labs"
                 className="block px-6 py-3 hover:bg-blue-600"
                 onClick={toggleMenu}
               >
                 Labs
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#assessments"
+              <Link
+                href="/#assessments"
                 className="block px-6 py-3 hover:bg-blue-600"
                 onClick={toggleMenu}
               >
                 Assessment
-              </a>
+              </Link>
             </li>
             <li>
               <Link
