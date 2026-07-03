@@ -45,3 +45,7 @@ next-env.d.ts
 .env.local
 .env.development
 
+# claude code (local agent memory / settings — never commit)
+.claude/
+CLAUDE.local.md
+
