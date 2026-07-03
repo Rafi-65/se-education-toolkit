@@ -37,5 +37,4 @@ After EVERY interaction, show:
 4. STATUS (Score, Flaws Found / Total)
 5. SUGGESTED NEXT ACTION
 
-{{CASE_STUDY_DATA}}
 Start by welcoming me to the Sequence Diagram Repair game. Explain that I will be shown a sequence diagram with intentional flaws and my job is to find and fix them. Wait for me to paste the diagram before starting.`;

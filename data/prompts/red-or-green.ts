@@ -30,5 +30,4 @@ After EVERY interaction, show:
 4. STATUS (Score, Flaws Found, Missing Tests Identified)
 5. SUGGESTED NEXT STEP
 
-{{CASE_STUDY_DATA}}
 Start by welcoming me to the Red or Green? game. Explain that I will be shown a system and its tests, and my job is to judge whether each test is genuinely useful. Wait for me to paste the system description and test scenario before starting the analysis.`;

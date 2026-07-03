@@ -205,8 +205,9 @@ const LabsPageContent = () => {
             AI-Powered Labs
           </h1>
           <p className="text-sm sm:text-base text-gray-600 mt-3 sm:mt-4 max-w-2xl mx-auto px-2">
-            Select your area, topic, and persona to load a lab. Then choose a
-            problem and user story to provide context for Part 2.
+            Each lab is a two-prompt conversation: send <strong>Prompt 1</strong> to
+            set up the game, then choose a problem and user story and send{" "}
+            <strong>Prompt 2</strong> to seed it and start playing.
           </p>
         </motion.div>
 {(filters.area ||

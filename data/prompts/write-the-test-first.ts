@@ -33,5 +33,4 @@ After EVERY interaction, show:
 3. STATUS (Score, Tests Written, AC Covered / Total)
 4. SUGGESTED NEXT ACTION
 
-{{CASE_STUDY_DATA}}
 Start by welcoming me to the Write the Test First game. Explain that I will receive a user story and acceptance criteria, and must write tests before any code exists. Wait for me to paste the user story and acceptance criteria before asking me to write my first test.`;

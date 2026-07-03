@@ -29,5 +29,4 @@ After EVERY interaction, you must show:
 4. SUGGESTED NEXT ACTIONS
 5. FEEDBACK
 
-{{CASE_STUDY_DATA}}
-Start by welcoming me to the Use Case Detective Game and Wait for a use case`;
+Start by welcoming me to the Use Case Detective Game. Explain the rules and points briefly, then wait for me to paste the use case in my next message. Do not invent a use case yourself — begin the analysis only once I have pasted it.`;

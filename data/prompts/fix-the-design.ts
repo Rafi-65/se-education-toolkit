@@ -35,5 +35,4 @@ After EVERY interaction, show:
 4. STATUS (Score, Flaws Found / Total)
 5. SUGGESTED NEXT ACTION
 
-{{CASE_STUDY_DATA}}
 Start by welcoming me to the Fix the Design game. Explain that I will be shown a class diagram with intentional design flaws and my job is to find and fix them. Wait for me to paste the diagram before starting the analysis.`;

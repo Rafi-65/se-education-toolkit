@@ -36,5 +36,4 @@ After EVERY interaction, show:
 4. STATUS (Score, Violations Found / Total)
 5. SUGGESTED NEXT ACTION
 
-{{CASE_STUDY_DATA}}
 Start by welcoming me to the SOLID Violations game. Explain that I will be shown a class description with intentional SOLID violations and my job is to name each broken principle and explain how to fix it. Wait for me to paste the class description before starting.`;

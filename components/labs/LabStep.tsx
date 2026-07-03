@@ -61,6 +61,11 @@ const LabStep: React.FC<LabStepProps> = ({
   const [copied, setCopied] = useState(false);
   const [copiedSummary, setCopiedSummary] = useState(false);
 
+  // Kickoff line appended to Prompt 2 (the game seed) so the AI starts the
+  // exercise as soon as the student pastes it as their second message.
+  const gameSeedKickoff =
+    "That is the complete scenario for this game. Please begin now.";
+
   const handleCopy = (text: string) => {
     copyToClipboard(text);
     setCopied(true);
@@ -167,18 +172,11 @@ const LabStep: React.FC<LabStepProps> = ({
           <div className="flex justify-between items-center mb-1 sm:mb-2">
             <div className="flex items-center gap-2">
               <h4 className="font-medium text-gray-700 text-sm sm:text-base">
-                {isSecondStep && caseStudy ? `${userStoryLabel} Teacher Prompt` : "Prompt"}
+                Prompt 1 · Set up the game
               </h4>
-              {!isSecondStep && caseStudy && (
-                <span className="bg-green-100 text-green-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
-                  <Check size={10} /> Context Loaded
-                </span>
-              )}
-              {!isSecondStep && !caseStudy && step.prompt?.includes("{{CASE_STUDY_DATA}}") && (
-                <span className="bg-amber-100 text-amber-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                  Waiting for Context
-                </span>
-              )}
+              <span className="bg-blue-100 text-blue-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                Send this first
+              </span>
             </div>
             <button
               onClick={() => handleCopy(prompt)}
@@ -202,6 +200,10 @@ const LabStep: React.FC<LabStepProps> = ({
           <div className="bg-gray-50 p-2 sm:p-3 rounded-md text-xs sm:text-sm text-gray-700 whitespace-pre-line overflow-auto max-h-48 sm:max-h-64">
             {prompt}
           </div>
+          <p className="mt-1.5 text-[11px] sm:text-xs text-gray-500">
+            Paste this into a fresh AI chat. The AI will welcome you, explain the
+            rules, and then wait — send Prompt 2 below to start playing.
+          </p>
         </div>
       )}
 
@@ -219,8 +221,20 @@ const LabStep: React.FC<LabStepProps> = ({
 
       {isSecondStep && caseStudy && (
         <div className="mt-3 sm:mt-4 bg-blue-50 rounded-md overflow-hidden">
-          <div className="flex justify-between items-center px-2 sm:px-3 pt-2 sm:pt-3 mb-2">
-            <h4 className="font-medium text-gray-700 text-sm sm:text-base">Selected Context</h4>
+          <div className="flex justify-between items-start px-2 sm:px-3 pt-2 sm:pt-3 mb-2 gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-medium text-gray-700 text-sm sm:text-base">
+                  Prompt 2 · Start the game
+                </h4>
+                <span className="bg-green-100 text-green-800 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <Check size={10} /> Seed ready
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] sm:text-xs text-gray-500">
+                Paste this as your next message in the same chat to begin.
+              </p>
+            </div>
             <button
               onClick={() => {
                 const formattedContext = formatCaseStudyContext(
@@ -230,7 +244,7 @@ const LabStep: React.FC<LabStepProps> = ({
                   userStoryLabel,
                   acLabel
                 );
-                handleCopySummary(formattedContext);
+                handleCopySummary(`${formattedContext}\n\n${gameSeedKickoff}`);
               }}
               className="flex items-center gap-1 text-xs sm:text-sm transition-colors text-blue-500 hover:text-blue-600"
             >
@@ -302,6 +316,9 @@ const LabStep: React.FC<LabStepProps> = ({
                 </ul>
               </div>
             )}
+            <p className="text-xs sm:text-sm text-blue-800 italic border-t border-blue-100 pt-2">
+              {gameSeedKickoff}
+            </p>
           </div>
         </div>
       )}
