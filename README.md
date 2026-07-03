@@ -10,11 +10,10 @@ This platform provides:
 - Different software development areas (requirements engineering, coding maintainers)
 - Various topics per area (user stories, requirements engineering, etc.)
 - Role-based exercises (tutor, student, professional)
-- Configurable case studies with dedicated prompts
+- A two-prompt workflow that seeds each lab with a selectable problem, user story, and acceptance criteria
 - URL-based filtering with query parameters
 - Points-based feedback system
 - Hint systems with progressive assistance
-- Downloadable lab sheets for offline use
 
 ## Getting Started
 
@@ -54,136 +53,97 @@ yarn dev
 
 ```
 /
-├── app/             # Next.js application routes and components
-├── components/      # Reusable UI components
-├── data/            # Lab content and configuration
-│   ├── index.ts     # Main data structure for labs
-│   └── lab-sheets/  # Downloadable HTML lab sheets
-├── lib/             # Utility functions
-├── public/          # Static assets
-│   └── files/       # Public files like downloadable resources
-└── styles/          # CSS and styling
+├── app/                 # Next.js App Router routes (/, /labs, /about, /talks)
+├── components/          # Reusable UI components (incl. components/labs/)
+├── data/                # Lab content and configuration
+│   ├── lab-data.json    # Canonical source: areas[] (topics[], games[]), personas[], problems[]
+│   ├── prompts/         # One .ts file per game prompt, registered in prompts/index.ts
+│   └── index.ts         # Builds GAMES, LABS, PROBLEMS, AREAS, PERSONAS from the above
+├── lib/                 # Utility functions (lab-utils.ts, download.ts, ...)
+└── public/              # Static assets (images, slides, ...)
 ```
+
+## The two-prompt lab workflow
+
+Every lab is run as a **two-message conversation** with an AI assistant, mirroring the two `steps[]` of each game:
+
+1. **Prompt 1 · Set up the game** (the `setup` step) — pasted into a fresh AI chat. The AI welcomes the student, explains the rules and scoring, and then waits.
+2. **Prompt 2 · Start the game** (the `interaction` step) — the student's selected context (problem, user story, acceptance criteria) plus a kickoff line, pasted as the next message to begin play. This step stays locked until a problem, user story, and acceptance criteria are selected.
+
+Prompt 1 comes from a prompt file (`data/prompts/<name>.ts`); Prompt 2 is assembled at render time from the selected `Problem`. Setup prompts do **not** inline the case-study context — the two prompts are kept separate on purpose.
 
 ## Creating a New Lab
 
-Labs are defined in `data/index.ts` following a structured format:
+Content lives in two places: `data/lab-data.json` (the canonical JSON source) and `data/prompts/` (one `.ts` file per prompt). `data/index.ts` reads both and builds the `GAMES` and `LABS` exports consumed by the app.
 
-1. Create a new lab array with steps:
+1. Add a game to the relevant topic in `data/lab-data.json`. Each game has a `steps[]` array where every step declares a `type`:
 
-```typescript
-const my_new_lab = [
-  {
-    title: "Part 1: Setup",
-    time: 5,
-    setup: ["Step 1", "Step 2"],
-    prompt: `Your detailed prompt here...`,
-  },
-  {
-    title: "Part 2: Game Interaction",
-    time: 15,
-    guidelines: ["Guideline 1", "Guideline 2"],
-    details: [
-      {
-        heading: "Section heading",
-        content: "Content details...",
-      },
-    ],
-    // The prompt for Part 2 comes from the selected case study
-    prompt: null,
-  },
-  // Add more steps as needed
-];
-```
-
-2. Create case studies with prompts:
-
-```typescript
-const myCaseStudy: CaseStudy = {
-  id: "unique-case-study-id",
-  name: "Case Study Display Name",
-  description: "Brief description of the case study scenario",
-  prompt: `Detailed prompt for the case study that will be used in the second step of the lab...`,
-};
-```
-
-3. Create a lab object:
-
-```typescript
-const my_new_lab_object: Lab = {
-  id: "unique-lab-id",
-  title: "Lab Title",
-  description: "Brief description of the lab",
-  steps: my_new_lab,
-  downloadFile: "/files/lab-sheets/YourLabName.html", // Optional HTML lab sheet
-};
-```
-
-4. Add your lab to the LABS array with appropriate area, topic, and case studies:
-
-```typescript
-export const LABS: LabCategory[] = [
-  // Existing categories
-  {
-    area: "requirements engineering", // or "coding maintainers", etc.
-    topic: "user_stories_and_acceptance_criteria", // or "use_cases"
-    persona: "tutor", // e.g., "tutor", "student", "professional"
-    labs: [my_new_lab_object],
-    caseStudies: [myCaseStudy, anotherCaseStudy],
-  },
-];
-```
-
-5. (Optional) Create and add a downloadable HTML lab sheet in the public/files/lab-sheets directory.
-
-## Case Study Configuration
-
-Case studies provide context for labs and supply prompts for the second step of each lab:
-
-1. Create case studies with unique IDs, display names, descriptions, and detailed prompts
-2. The prompt in a case study is used for the second step of any lab
-3. Lab steps with index 1 (the second step) should typically have their prompt set to null
-4. Assign case studies to lab categories (area/topic combinations)
-
-For example:
-
-```typescript
-// Define case studies
-const resetPasswordCaseStudy: CaseStudy = {
-  id: "reset-password",
-  name: "Reset Password",
-  description: "A system to reset a user's password.",
-  prompt: `
-    1. User clicks reset password
-    2. System sends them the link
-    3. User enters new password
-    4. System updates the account
-  `,
-};
-
-// Assign to a lab category
+```jsonc
 {
-  area: "requirements engineering",
-  topic: "use_cases",
-  persona: "tutor",
-  labs: [my_tutor_lab],
-  caseStudies: [resetPasswordCaseStudy]
+  "id": "unique-game-id",
+  "title": "Lab Title",
+  "description": "Brief description of the lab",
+  "steps": [
+    {
+      "type": "setup",            // holds Prompt 1
+      "title": "Part 1: Setup",
+      "time": 5,
+      "setup": ["Open your preferred LLM assistant", "Copy and paste the following prompt:"],
+      "promptFile": "unique-game-id"   // references data/prompts/unique-game-id.ts
+    },
+    {
+      "type": "interaction",      // Prompt 2 is built from the selected problem — no prompt field
+      "title": "Part 2: Game Interaction",
+      "time": 10,
+      "guidelines": ["Analyze each step carefully", "Try finding issues before requesting hints"]
+    }
+  ]
 }
 ```
+
+2. Create the prompt file `data/prompts/unique-game-id.ts` and register it in `data/prompts/index.ts`. Prompt strings may contain the `{{PERSONA_INTRO}}` placeholder, which is replaced at render time from the area's `personaIntros`:
+
+```typescript
+// data/prompts/unique-game-id.ts
+export const uniqueGameId = `{{PERSONA_INTRO}}
+You are running the ... game. Explain the rules and points briefly, then wait
+for me to paste the scenario in my next message. Do not invent a scenario
+yourself — begin only once I have pasted it.`;
+```
+
+3. Make the topic offer the game by adding problem ids to the topic's `problemIds`, and ensure those `Problem` objects exist in the top-level `problems[]`:
+
+```jsonc
+// top-level "problems": [ ... ]
+{
+  "id": "reset-password-problem",
+  "name": "Reset Password",
+  "statement": "Users who forget their password need a secure way to regain access.",
+  "description": "A flow that lets a user request a reset link and set a new password.",
+  "context": "Account security",
+  "personas": [
+    { "name": "Alex", "role": "Registered user", "description": "..." }
+  ]
+}
+```
+
+Topic names use `snake_case` (e.g. `use_cases`, `user_stories_and_acceptance_criteria`); `formatTopicForDisplay` in `lib/lab-utils.ts` converts them to title case for the UI.
 
 ## Query Parameter Filtering
 
 The platform supports URL-based filtering with query parameters:
 
-- `?area=requirements%20engineering` - Filter by area
-- `?topic=User%20Stories%20And%20Acceptance%20Criteria` - Filter by topic
-- `?persona=tutor` - Filter by persona
-- `?caseStudy=reset-password` - Filter by case study ID
+- `?area=requirements%20engineering` — Filter by area
+- `?topic=use_cases` — Filter by topic (`snake_case`)
+- `?persona=tutor` — Filter by persona
+- `?problemId=reset-password-problem` — Preselect a problem for Prompt 2
+- `?userStoryId=...` — Preselect a user story
+- `?acceptanceCriteriaIds=...` — Preselect acceptance criteria (comma-separated)
 
-You can combine parameters to create direct links to specific labs:
+Changing `area` resets `topic`. You can combine parameters to deep-link a fully seeded lab:
 
 ```
-/labs?area=requirements%20engineering&topic=Use%20Cases&persona=tutor&caseStudy=reset-password
+/labs?area=requirements%20engineering&topic=use_cases&persona=tutor&problemId=reset-password-problem
 ```
 
 ## Development Workflow
